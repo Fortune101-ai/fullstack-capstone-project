@@ -12,8 +12,7 @@ const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 app.use("*",cors());
-app.use('/api/gifts', giftRoutes);
-app.use('/api/search', searchRoutes);
+
 const port = 3060;
 
 // Connect to MongoDB; we just do this one time
@@ -37,6 +36,8 @@ const pinoHttp = require('pino-http');
 const logger = require('./logger');
 
 app.use(pinoHttp({ logger }));
+app.use('/api/gifts', giftRoutes);
+app.use('/api/search', searchRoutes);
 
 // Use Routes
 // Gift API Task 2: add the giftRoutes to the server by using the app.use() method.
