@@ -77,7 +77,44 @@ router.post('/login', async (req, res) => {
         const authtoken = jwt.sign({ id: user._id }, JWT_SECRET);
         res.json({ authtoken, userName, userEmail });
         // Task 7: Send appropriate message if user not found
-        
+
+    } catch (e) {
+         return res.status(500).send('Internal server error');
+
+    }
+});
+
+
+
+router.put('/update', async (req, res) => {
+        // Task 2: Validate the input using `validationResult` and return approiate message if there is an error.
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        logger.error('Validation errors in update request', errors.array());
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        // Task 3: Check if `email` is present in the header and throw an appropriate error message if not present.
+        const email = req.headers['email'];
+        if (!email) {
+            logger.error('Email not found in request headers');
+            return res.status(400).send('Email not found');
+        }
+        // Task 4: Connect to MongoDB
+        const db = await connectToDatabase();
+        // Task 5: find user credentials in database
+        const existingUser = await db.collection('users').findOne({ email });
+        if (!existingUser) {
+            logger.error('User not found');
+            return res.status(404).send('User not found');
+        }
+        existingUser.updatedAt = new Date();
+
+        // Task 6: update user credentials in database
+        await db.collection('users').updateOne({ email }, { $set: existingUser },{ returnDocument: 'after' });
+        // Task 7: create JWT authentication using secret key from .env file
+        const authtoken = jwt.sign({ id: existingUser._id }, JWT_SECRET);
+        res.json({ authtoken });
     } catch (e) {
          return res.status(500).send('Internal server error');
 
