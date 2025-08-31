@@ -1,42 +1,42 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./LoginPage.css";
-import {urlConfig} from '../../config';
-import { useAppContext } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { urlConfig } from "../../config";
+import { useAppContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   //insert code here to create useState hook variables for email, password
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password] = useState("");
   const navigate = useNavigate();
-    const bearerToken = sessionStorage.getItem('bearer-token');
-    const { setIsLoggedIn } = useAppContext();
-    const [incorrect, setIncorrect] = useState('');
+  const bearerToken = sessionStorage.getItem("bearer-token");
+  const { setIsLoggedIn } = useAppContext();
+  const [, setIncorrect] = useState("");
 
-        useEffect(() => {
-        if (sessionStorage.getItem('auth-token')) {
-          navigate('/app')
-        }
-      }, [navigate])
+  useEffect(() => {
+    if (sessionStorage.getItem("auth-token")) {
+      navigate("/app");
+    }
+  }, [navigate]);
   // insert code here to create handleLogin function and include console.log
   const handleLogin = async (e) => {
     e.preventDefault();
     console.log(`Logging in with email: ${email}`);
 
-            const res = await fetch(`${urlConfig.backendUrl}/api/auth/login`, {
-            //Step 1 - Task 7
-            method: 'POST',
-            //Step 1 - Task 8
-          headers: {
-            'content-type': 'application/json',
-            'Authorization': bearerToken ? `Bearer ${bearerToken}` : '', // Include Bearer token if available
-          },
-        //Step 1 - Task 9
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          })
-        });
+    const res = await fetch(`${urlConfig.backendUrl}/api/auth/login`, {
+      //Step 1 - Task 7
+      method: "POST",
+      //Step 1 - Task 8
+      headers: {
+        "content-type": "application/json",
+        Authorization: bearerToken ? `Bearer ${bearerToken}` : "", // Include Bearer token if available
+      },
+      //Step 1 - Task 9
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    });
 
     const json = await res.json();
     console.log("json data", json);
