@@ -12,29 +12,19 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/register", async (req, res) => {
   try {
-    // Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase` in `db.js`
-    // {{insert code here}}
     const db = await connectToDatabase();
-
-    // Task 2: Access MongoDB collection
     const usersCollection = db.collection("users");
 
-    //Task 3: Check for existing email
-    const existingUser = await usersCollection.findOne({
-      email: req.body.email,
-    });
-
-    const salt = await bcryptjs.genSalt(10);
-    const hash = await bcryptjs.hash(req.body.password, salt);
-    const email = req.body.email;
-
-    // {{insert code here}} //Task 4: Save user details in database
+    const existingUser = await usersCollection.findOne({ email: req.body.email });
     if (existingUser) {
       logger.warn("User already exists");
       return res.status(400).send("User already exists");
     }
 
-    const newUser = await collection.insertOne({
+    const salt = await bcryptjs.genSalt(10);
+    const hash = await bcryptjs.hash(req.body.password, salt);
+
+    const result = await usersCollection.insertOne({
       email: req.body.email,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -42,16 +32,16 @@ router.post("/register", async (req, res) => {
       createdAt: new Date(),
     });
 
-    await usersCollection.insertOne(newUser);
+    const authtoken = jwt.sign({ id: result.insertedId }, JWT_SECRET);
 
-    // Task 5: Create JWT authentication with user._id as payload
-    const authtoken = jwt.sign({ id: newUser._id }, JWT_SECRET);
     logger.info("User registered successfully");
-    res.json({ authtoken, email });
+    res.json({ authtoken, email: req.body.email });
   } catch (e) {
+    logger.error(e);
     return res.status(500).send("Internal server error");
   }
 });
+
 
 router.post("/login", async (req, res) => {
   try {
