@@ -11,7 +11,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const bearerToken = sessionStorage.getItem("bearer-token");
   const { setIsLoggedIn } = useAppContext();
-  const [incorrect, setIncorrect] = useState("");
+  const [, setIncorrect] = useState("");
 
   useEffect(() => {
     if (sessionStorage.getItem("auth-token")) {
